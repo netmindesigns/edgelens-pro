@@ -1,0 +1,41 @@
+from backend.services.odds_normalizer import calculate_edge
+
+
+def classify_edge(edge: float) -> str:
+    if edge >= 0.05:
+        return "STRONG EDGE"
+
+    if edge >= 0.025:
+        return "EDGE"
+
+    if edge >= 0.01:
+        return "SMALL EDGE"
+
+    return "NO EDGE"
+
+
+def analyze_edge(
+    model_probability: float,
+    market_probability: float,
+    sample_size: int
+):
+    edge = calculate_edge(
+        model_probability,
+        market_probability
+    )
+
+    confidence = min(
+        95,
+        max(
+            10,
+            35 + sample_size / 100
+        )
+    )
+
+    return {
+        "edge": round(edge, 4),
+        "edge_percentage": round(edge * 100, 2),
+        "classification": classify_edge(edge),
+        "confidence": round(confidence, 1),
+        "sample_size": sample_size
+    }
